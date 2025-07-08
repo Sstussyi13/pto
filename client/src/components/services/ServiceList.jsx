@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
+import * as Icons from "lucide-react";
 import ServiceCard from "./ServiceCard";
-import { Wrench, FileText, ClipboardList } from "lucide-react";
-
-const ICONS = {
-  Wrench,
-  FileText,
-  ClipboardList,
-};
 
 export default function ServiceList({ setModalContent }) {
   const [services, setServices] = useState([]);
@@ -34,7 +28,8 @@ export default function ServiceList({ setModalContent }) {
   return (
     <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
       {services.map((item, idx) => {
-        const Icon = ICONS[item.icon] || Wrench;
+        const Icon = Icons[item.icon] || Icons.Wrench;
+
         return (
           <ServiceCard
             key={idx}

@@ -11,7 +11,10 @@ export const submitRequest = async (req, res, next) => {
       object_type = '',
       id_section = '',
       control_period = '',
-      additional_info = '',
+      object = '',
+      deadline = '',
+      review_deadline = '',
+      estimated_price = '',
       message = '',
     } = req.body;
 
@@ -25,7 +28,7 @@ export const submitRequest = async (req, res, next) => {
       return res.status(400).json({ error: 'Введите корректный номер телефона' });
     }
 
-    // Логируем заявку (всегда)
+    // Логируем заявку
     console.log('📩 Новая заявка:', {
       full_name,
       phone,
@@ -34,11 +37,14 @@ export const submitRequest = async (req, res, next) => {
       object_type,
       id_section,
       control_period,
-      additional_info,
+      object,
+      deadline,
+      review_deadline,
+      estimated_price,
       message,
     });
 
-    // Сохраняем в SQLite (промис-обёртка)
+    // Сохраняем в SQLite (можно расширить структуру таблицы позже)
     await new Promise((resolve, reject) => {
       db.run(
         `INSERT INTO applications (full_name, phone, service_type, message)
@@ -65,7 +71,10 @@ export const submitRequest = async (req, res, next) => {
         object_type,
         id_section,
         control_period,
-        additional_info,
+        object,
+        deadline,
+        review_deadline,
+        estimated_price,
         message,
       });
       console.log('✅ Письмо успешно отправлено');
@@ -73,7 +82,6 @@ export const submitRequest = async (req, res, next) => {
       console.error('❌ Ошибка отправки письма:', emailErr.message);
     }
 
-    // Ответ клиенту
     return res.status(201).json({ message: 'Заявка успешно отправлена и сохранена' });
 
   } catch (err) {

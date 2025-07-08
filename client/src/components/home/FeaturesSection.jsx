@@ -23,26 +23,34 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section className="bg-gray-50 py-20 px-4 sm:px-6">
-      <div className="max-w-5xl mx-auto text-center">
-        <h2 className="text-3xl font-bold mb-4 text-gray-900">Почему выбирают нас</h2>
-        <p className="text-gray-500 mb-12 text-base">
-          Мы — команда инженеров, архитекторов и экспертов, которая помогает бизнесу и строительным компаниям запускать объекты вовремя и без лишней бюрократии.
+    <section className="bg-white py-24 px-4 sm:px-6">
+      <div className="max-w-6xl mx-auto text-center">
+        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
+          Почему выбирают нас
+        </h2>
+        <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto mb-14">
+          Мы не просто оформляем документацию. Мы помогаем запускать стройку в срок, без штрафов и с уверенностью в результате.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 text-left">
+        <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
           {features.map((item, idx) => (
             <div
               key={idx}
-              className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition"
+              className="bg-gray-50 border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition"
+              data-aos="fade-up"
+              data-aos-delay={idx * 150}
             >
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 shrink-0">
-                  <Lottie animationData={item.animation} loop />
+              <div className="flex flex-col items-center text-center">
+                {/* Анимация в круге */}
+                <div className="w-20 h-20 bg-white rounded-full border border-gray-200 shadow flex items-center justify-center mb-4">
+                  <Lottie animationData={item.animation} loop className="w-14 h-14" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-800">{item.title}</h3>
+
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{item.text}</p>
               </div>
-              <p className="text-gray-600 text-sm leading-relaxed">{item.text}</p>
             </div>
           ))}
         </div>

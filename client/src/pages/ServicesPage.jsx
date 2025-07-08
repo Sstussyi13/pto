@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { Link } from "react-router-dom";
 import ServiceList from "../components/services/ServiceList";
 import ServiceModal from "../components/services/ServiceModal";
 import PriceBlock from "../components/price/PriceBlock";
+
 
 export default function ServicesPage() {
   const [modalContent, setModalContent] = useState(null);
@@ -11,24 +13,8 @@ export default function ServicesPage() {
     <>
       <Helmet>
         <title>Услуги | ПТО / ППР</title>
-        <meta
-          name="description"
-          content="Разработка ППР, ПОД, технологических карт, исполнительной документации и согласование с контролирующими органами. Работаем по всей России."
-        />
-        <meta
-          name="keywords"
-          content="ППР, ПОД, техкарты, исполнительная документация, услуги ПТО, проектирование, сопровождение строительства"
-        />
+        <meta name="description" content="Разработка ППР, ПОД, технологических карт, исполнительной документации..." />
         <link rel="canonical" href="https://24ptoppr.ru/services" />
-
-        <meta property="og:title" content="Услуги | ПТО / ППР" />
-        <meta property="og:description" content="Услуги по проектированию и сопровождению: ППР, ПОД, техкарты, исполнительная документация. Работаем по всей России." />
-        <meta property="og:url" content="https://24ptoppr.ru/services" />
-        <meta property="og:image" content="https://24ptoppr.ru/preview-services.jpg" />
-
-        <meta name="twitter:title" content="Услуги | ПТО / ППР" />
-        <meta name="twitter:description" content="Профессиональная разработка и согласование ППР, ПОД, техкарт и исполнительной документации. По всей РФ." />
-        <meta name="twitter:image" content="https://24ptoppr.ru/preview-services.jpg" />
       </Helmet>
 
       <section className="bg-white text-gray-800 py-20 px-4 sm:px-6">
@@ -40,7 +26,24 @@ export default function ServicesPage() {
 
           <ServiceList setModalContent={setModalContent} />
           {modalContent && <ServiceModal content={modalContent} onClose={() => setModalContent(null)} />}
-          <PriceBlock />
+
+          {/* Блок с таблицей и калькулятором */}
+         <div className="mt-20 w-full">
+  <PriceBlock />
+</div>
+
+
+
+          {/* 👉 Кнопка "Оставить заявку" по центру внизу */}
+          <div className="text-center mt-16">
+  <Link
+    to="/contacts"
+    className="inline-flex items-center gap-2 bg-gray-800 text-white font-semibold px-6 py-3 rounded-full hover:bg-gray-700 transition"
+  >
+    Отправить заявку 
+  </Link>
+</div>
+
         </div>
       </section>
     </>

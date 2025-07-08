@@ -7,14 +7,17 @@ import Lenis from "@studio-freight/lenis";
 import Layout from "./components/Layout";
 import PrivateRoute from "./components/PrivateRoute";
 
-import AdminPanel from "./pages/AdminPanel.jsx";
-import AdminLogin from "./pages/LoginPage.jsx";
-
 import Home from "./pages/HomePage.jsx";
 import Services from "./pages/ServicesPage.jsx";
 import Steps from "./pages/StepsPage.jsx";
 import Contacts from "./pages/Contacts.jsx";
-import NotFound from "./pages/NotFound.jsx"; // Страница 404
+import NotFound from "./pages/NotFound.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
+import AdminPanel from "./pages/AdminPanel.jsx"; // ✅ Добавить вот эту строку
+
+
+import ScrollToTopButton from "./components/ui/ScrollToTopButton";
+
 
 export default function App() {
   const location = useLocation();
@@ -60,28 +63,35 @@ export default function App() {
   }, [location.pathname]);
 
   return (
-    <Routes>
-      {/* Публичная часть */}
-      <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/steps" element={<Steps />} />
-        <Route path="/contacts" element={<Contacts />} />
-      </Route>
+    <>
+      <Routes>
+        {/* Публичная часть */}
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/steps" element={<Steps />} />
+          <Route path="/contacts" element={<Contacts />} />
+        </Route>
 
-      {/* Админка */}
-      <Route path="/super/login" element={<AdminLogin />} />
-      <Route
-        path="/super"
-        element={
-          <PrivateRoute>
-            <AdminPanel />
-          </PrivateRoute>
-        }
-      />
+        {/* Админка */}
+        <Route path="/super/login" element={<LoginPage />} />
 
-      {/* Страница 404 */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        <Route
+          path="/super"
+          element={
+            <PrivateRoute>
+              <AdminPanel />
+            </PrivateRoute>
+          }
+        />
+
+        {/* 404 */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+
+      {/* Общие элементы UI */}
+      <ScrollToTopButton />
+     
+    </>
   );
 }

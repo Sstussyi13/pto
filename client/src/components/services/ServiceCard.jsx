@@ -32,7 +32,7 @@ export default function ServiceCard({ title, description, icon: Icon, onClick })
       )}
 
       <span className="inline-block text-sm text-blue-600 font-medium group-hover:underline">
-        Подробнее →
+        Подробнее 
       </span>
     </div>
   );

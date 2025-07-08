@@ -1,4 +1,14 @@
+import { useEffect } from "react";
+
 export default function ServiceModal({ content, onClose }) {
+  // 🔒 Блокируем скролл body при открытии
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = ""; // Возвращаем скролл при закрытии
+    };
+  }, []);
+
   return (
     <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"

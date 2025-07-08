@@ -1,24 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import StepItem from "./StepItem";
-
-import {
-  PhoneCall,
-  FileText,
-  ClipboardCheck,
-  ShieldCheck,
-  UserCheck,
-  Send,
-} from "lucide-react";
-
-const ICONS = {
-  PhoneCall,
-  FileText,
-  ClipboardCheck,
-  ShieldCheck,
-  UserCheck,
-  Send,
-};
+import * as LucideIcons from "lucide-react";
 
 export default function StepsSection() {
   const [steps, setSteps] = useState([]);
@@ -35,12 +17,7 @@ export default function StepsSection() {
           return;
         }
 
-        const formatted = parsed.map((step) => ({
-          ...step,
-          icon: ICONS[step.icon] || FileText, // подстраховка
-        }));
-
-        setSteps(formatted);
+        setSteps(parsed);
       } catch (err) {
         console.error("Ошибка при загрузке steps:", err);
       }
@@ -52,10 +29,40 @@ export default function StepsSection() {
   if (!steps.length) return null;
 
   return (
-    <section className="space-y-8">
-      {steps.map((step, index) => (
-        <StepItem key={index} step={step} delay={index * 100} />
-      ))}
+    <section className="py-20 px-4 sm:px-6 bg-white">
+      <div className="max-w-6xl mx-auto">
+        <h2 className="text-3xl font-bold text-center mb-6">Этапы работы</h2>
+        <p className="text-center text-gray-500 mb-12">
+          Сопровождаем проект от первого звонка до финальной сдачи документации.
+        </p>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {steps.map((step, index) => {
+            const Icon = LucideIcons[step.icon] || LucideIcons.FileText;
+            return (
+              <div
+                key={index}
+                className="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition group h-full flex flex-col"
+                data-aos="fade-up"
+                data-aos-delay={index * 100}
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <Icon className="w-5 h-5 text-gray-700" />
+                  </div>
+                </div>
+
+                <h3 className="text-base font-semibold text-gray-900 mb-2">
+                  {step.title}
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  {step.description}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </section>
   );
 }
