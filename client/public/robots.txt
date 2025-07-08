@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://24ptoppr.ru/sitemap.xml
