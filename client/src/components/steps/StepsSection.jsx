@@ -2,9 +2,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import * as LucideIcons from "lucide-react";
 
-import { useEffect, useState } from "react";
-import axios from "axios";
-import * as LucideIcons from "lucide-react";
 
 export default function StepsSection() {
   const [steps, setSteps] = useState([]);
