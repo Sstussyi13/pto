@@ -22,24 +22,29 @@ export default function AdminPanel() {
   const [error, setError] = useState("");
 
   const loadContent = async () => {
-    try {
-      const res = await axios.get("/api/content/all");
-      const entries = {};
-      res.data.forEach((item) => {
+  try {
+    const res = await axios.get("/api/content/all");
+    const entries = {};
+    res.data.forEach((item) => {
+      if (typeof item.value === 'string') {
         try {
           entries[item.key] = JSON.parse(item.value);
         } catch {
           entries[item.key] = item.value;
         }
-      });
-      setData(entries);
-    } catch (err) {
-      console.error("Ошибка загрузки контента:", err);
-      setError("Не удалось загрузить данные");
-    } finally {
-      setLoading(false);
-    }
-  };
+      } else {
+        entries[item.key] = item.value;
+      }
+    });
+    setData(entries);
+  } catch (err) {
+    console.error("Ошибка загрузки контента:", err);
+    setError("Не удалось загрузить данные");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const saveContent = async (key, value) => {
     try {

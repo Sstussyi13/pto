@@ -1,19 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect } from "react"; // 👈 добавлено
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import ServiceList from "../components/services/ServiceList";
 import ServiceModal from "../components/services/ServiceModal";
 import PriceBlock from "../components/price/PriceBlock";
 
-
 export default function ServicesPage() {
   const [modalContent, setModalContent] = useState(null);
+
+  // 🔒 Блокировка scroll при открытии модалки
+  useEffect(() => {
+    if (modalContent) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [modalContent]);
 
   return (
     <>
       <Helmet>
         <title>Услуги | ПТО / ППР</title>
-        <meta name="description" content="Разработка ППР, ПОД, технологических карт, исполнительной документации..." />
+        <meta
+          name="description"
+          content="Разработка ППР, ПОД, технологических карт, исполнительной документации..."
+        />
         <link rel="canonical" href="https://24ptoppr.ru/services" />
       </Helmet>
 
@@ -25,25 +40,22 @@ export default function ServicesPage() {
           </p>
 
           <ServiceList setModalContent={setModalContent} />
-          {modalContent && <ServiceModal content={modalContent} onClose={() => setModalContent(null)} />}
+          {modalContent && (
+            <ServiceModal content={modalContent} onClose={() => setModalContent(null)} />
+          )}
 
-          {/* Блок с таблицей и калькулятором */}
-         <div className="mt-20 w-full">
-  <PriceBlock />
-</div>
+          <div className="mt-20 w-full">
+            <PriceBlock />
+          </div>
 
-
-
-          {/* 👉 Кнопка "Оставить заявку" по центру внизу */}
           <div className="text-center mt-16">
-  <Link
-    to="/contacts"
-    className="inline-flex items-center gap-2 bg-gray-800 text-white font-semibold px-6 py-3 rounded-full hover:bg-gray-700 transition"
-  >
-    Отправить заявку 
-  </Link>
-</div>
-
+            <Link
+              to="/contacts"
+              className="inline-flex items-center gap-2 bg-gray-800 text-white font-semibold px-6 py-3 rounded-full hover:bg-gray-700 transition"
+            >
+              Отправить заявку
+            </Link>
+          </div>
         </div>
       </section>
     </>

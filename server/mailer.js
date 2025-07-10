@@ -3,25 +3,25 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Проверка что переменные из .env подтянулись
-console.log("📦 SMTP CONFIG USED:", {
+// Проверка: вывод текущих настроек
+console.log('📦 SMTP CONFIG USED:', {
   host: process.env.SMTP_HOST,
   port: process.env.SMTP_PORT,
   user: process.env.MAIL_USER,
 });
 
-// Настройка транспорта
+// Создаём SMTP-транспорт
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT),
   secure: process.env.SMTP_SECURE === 'true',
   auth: {
-    user: '9182e5001@smtp-brevo.com', // логин от Brevo
-    pass: process.env.MAIL_PASS,
-  },
+  user: process.env.MAIL_USER,
+  pass: process.env.MAIL_PASS,
+},
 });
 
-// Проверка соединения
+// Проверка подключения
 transporter.verify((error, success) => {
   if (error) {
     console.error('❌ SMTP Connection Error:', error);
@@ -30,7 +30,7 @@ transporter.verify((error, success) => {
   }
 });
 
-// HTML-экранирование
+// Функция экранирования HTML
 function escapeHtml(text = '') {
   return text.replace(/[&<>"']/g, match => ({
     '&': '&amp;',
@@ -41,7 +41,7 @@ function escapeHtml(text = '') {
   }[match]));
 }
 
-// Основная функция отправки письма
+// Функция отправки письма
 export async function sendEmail({
   full_name,
   phone,
@@ -125,7 +125,8 @@ export async function sendEmail({
     console.log('✅ Письмо отправлено:', info.response);
     return info;
   } catch (err) {
-    console.error('❌ Ошибка при отправке письма:', err.message);
+    console.error('❌ Ошибка при отправке письма:', err);
+
     throw err;
   }
 }

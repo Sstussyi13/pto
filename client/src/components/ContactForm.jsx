@@ -36,7 +36,6 @@ export default function ContactForm() {
   const [animatedPrice, setAnimatedPrice] = useState(0);
   const [targetPrice, setTargetPrice] = useState(null);
 
-  // Загрузка значений с бэка
   useEffect(() => {
     axios.get("/api/content/all").then((res) => {
       const loaded = {};
@@ -205,37 +204,27 @@ export default function ContactForm() {
       <h2 className="text-2xl font-semibold text-gray-900 mb-2">Заявка на расчёт</h2>
 
       <div className="grid sm:grid-cols-2 gap-4">
-        <select name="service_type" value={form.service_type} onChange={handleChange}
-          className="w-full border border-gray-300 p-3 rounded-md text-sm">
-          <option value="">Выберите услугу</option>
-          {dropdowns.service_types.map((s, i) => (
-            <option key={i} value={s}>{s}</option>
-          ))}
-        </select>
-
-        <select name="object_type" value={form.object_type} onChange={handleChange}
-          className="w-full border border-gray-300 p-3 rounded-md text-sm">
-          <option value="">Тип объекта</option>
-          {dropdowns.object_types.map((s, i) => (
-            <option key={i} value={s}>{s}</option>
-          ))}
-        </select>
-
-        <select name="id_section" value={form.id_section} onChange={handleChange}
-          className="w-full border border-gray-300 p-3 rounded-md text-sm">
-          <option value="">Раздел ИД</option>
-          {dropdowns.id_sections.map((s, i) => (
-            <option key={i} value={s}>{s}</option>
-          ))}
-        </select>
-
-        <select name="control_period" value={form.control_period} onChange={handleChange}
-          className="w-full border border-gray-300 p-3 rounded-md text-sm">
-          <option value="">Контрольный период</option>
-          {dropdowns.control_periods.map((s, i) => (
-            <option key={i} value={s}>{s}</option>
-          ))}
-        </select>
+        {["service_type", "object_type", "id_section", "control_period"].map((key, idx) => (
+          <select
+            key={key}
+            name={key}
+            value={form[key]}
+            onChange={handleChange}
+            className="w-full border border-gray-300 p-3 rounded-md text-base bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">
+              {{
+                service_type: "Выберите услугу",
+                object_type: "Тип объекта",
+                id_section: "Раздел ИД",
+                control_period: "Контрольный период",
+              }[key]}
+            </option>
+            {dropdowns[key + "s"]?.map((s, i) => (
+              <option key={i} value={s}>{s}</option>
+            ))}
+          </select>
+        ))}
       </div>
 
       {targetPrice && (
@@ -255,15 +244,12 @@ export default function ContactForm() {
         className="w-full border p-3 rounded-md text-sm border-gray-300"
       />
 
-      {/* Дата выполнения / рассмотрения */}
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
         <div className="grid sm:grid-cols-2 gap-4">
           <DatePicker
             label="Срок выполнения"
             value={form.deadline ? dayjs(form.deadline) : null}
-            onChange={(date) =>
-              setForm((prev) => ({ ...prev, deadline: date?.toDate() ?? null }))
-            }
+            onChange={(date) => setForm((prev) => ({ ...prev, deadline: date?.toDate() ?? null }))}
             minDate={dayjs("2025-01-01")}
             slotProps={{
               textField: {
@@ -271,6 +257,9 @@ export default function ContactForm() {
                 size: "small",
                 error: !!errors.deadline,
                 helperText: errors.deadline,
+                inputProps: {
+                  onFocus: (e) => e.target.click(),
+                },
               },
             }}
           />
@@ -278,9 +267,7 @@ export default function ContactForm() {
           <DatePicker
             label="Срок рассмотрения"
             value={form.review_deadline ? dayjs(form.review_deadline) : null}
-            onChange={(date) =>
-              setForm((prev) => ({ ...prev, review_deadline: date?.toDate() ?? null }))
-            }
+            onChange={(date) => setForm((prev) => ({ ...prev, review_deadline: date?.toDate() ?? null }))}
             minDate={dayjs("2025-01-01")}
             slotProps={{
               textField: {
@@ -288,6 +275,9 @@ export default function ContactForm() {
                 size: "small",
                 error: !!errors.review_deadline,
                 helperText: errors.review_deadline,
+                inputProps: {
+                  onFocus: (e) => e.target.click(),
+                },
               },
             }}
           />

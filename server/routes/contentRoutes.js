@@ -1,3 +1,4 @@
+// routes/contentRoutes.js
 import express from 'express';
 import db from '../config/db.js';
 import { protect } from '../middleware/authMiddleware.js';
@@ -11,7 +12,17 @@ router.get('/all', (req, res) => {
       console.error('Ошибка при получении контента:', err.message);
       return res.status(500).json({ error: 'Ошибка сервера' });
     }
-    res.json(rows.map(row => ({ key: row.key, value: JSON.parse(row.value) })));
+
+    const result = rows.map(row => {
+      try {
+        return { key: row.key, value: JSON.parse(row.value) };
+      } catch (e) {
+        console.warn(`⚠️ Невалидный JSON в ключе '${row.key}': ${e.message}`);
+        return { key: row.key, value: row.value }; // Вернём как строку
+      }
+    });
+
+    res.json(result);
   });
 });
 
