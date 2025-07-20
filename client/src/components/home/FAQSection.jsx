@@ -1,114 +1,121 @@
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const ACCENT = "bg-[#193a6a]";
 
 const faqs = [
   {
     question: "Сколько времени занимает разработка ППР?",
-    answer:
-      "Средний срок — от 3 рабочих дней, в зависимости от сложности проекта. Мы можем согласовать срочные заказы.",
+    answer: "Обычно — от 3 рабочих дней, но зависит от сложности. Срочные заказы — обсуждаем индивидуально.",
   },
   {
     question: "Какие документы входят в состав ППР?",
-    answer:
-      "Это зависит от типа работ, но обычно включаются: графики, пояснительная записка, схемы, технологические карты, ТБ.",
+    answer: "Графики, пояснительная записка, схемы, технологические карты, ТБ — в зависимости от работ.",
   },
   {
     question: "Сколько стоит разработка ППР?",
-    answer:
-      "Стоимость зависит от объёма работ и сроков. Мы предоставим точную смету после анализа задания. Базовые проекты — от 15 000 ₽.",
+    answer: "Цена зависит от объёма и сроков. Точную смету даём после анализа задания. Базовые проекты — от 15 000 ₽.",
   },
   {
-    question: "Вы работаете по всей России?",
-    answer:
-      "Да. Мы создаём проекты с учётом региональных требований и СНИПов, и доставляем документы онлайн.",
-  },
-  {
-    question: "Вы можете согласовать ППР в МОЭК или сетевых организациях?",
-    answer:
-      "Да, у нас есть опыт согласования в МОЭК, Мосводоканале, Ленэнерго, Россетях и других структурах.",
+    question: "Согласуете ли ППР в МОЭК, Россетях и др.?",
+    answer: "Да, у нас опыт согласований в МОЭК, Мосводоканале, Ленэнерго, Россетях и других структурах.",
   },
   {
     question: "Как быстро вы отвечаете на заявки?",
-    answer:
-      "В рабочее время — в течение 1 часа. Вне графика — утром следующего дня.",
+    answer: "В рабочее время — в течение часа. Вечером и ночью — утром следующего дня.",
   },
   {
-    question: "Вы предоставляете акты или гарантийные письма?",
-    answer:
-      "Да. Мы предоставляем официальные акты выполненных работ и гарантийные письма при необходимости.",
+    question: "Можете выдать акты или гарантийные письма?",
+    answer: "Да. Предоставляем официальные акты выполненных работ и гарантийные письма при необходимости.",
   },
 ];
 
 export default function FAQSection() {
   const [openIndex, setOpenIndex] = useState(null);
-  const contentRefs = useRef([]);
+  const refs = useRef([]);
   const [heights, setHeights] = useState([]);
 
-  // Измеряем высоту контента после монтирования и при изменении размеров экрана
   useEffect(() => {
-    const updateHeights = () => {
-      setHeights(
-        contentRefs.current.map(ref => ref?.scrollHeight || 0)
-      );
-    };
-
-    updateHeights();
-    window.addEventListener("resize", updateHeights);
-    
-    return () => window.removeEventListener("resize", updateHeights);
+    setHeights(refs.current.map((el) => el?.scrollHeight || 0));
+    const onResize = () => setHeights(refs.current.map((el) => el?.scrollHeight || 0));
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const toggle = (index) => {
-    setOpenIndex((prev) => (prev === index ? null : index));
-  };
-
   return (
-    <section className="py-20 px-4 sm:px-6 bg-gray-50 border-t border-gray-100">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold text-gray-900">Частые вопросы</h2>
-          <p className="mt-4 text-gray-500 text-sm sm:text-base">
-            Мы собрали самые популярные вопросы, чтобы сэкономить ваше время. Если останутся сомнения — свяжитесь с нами напрямую.
+    <section className="py-24 px-4 sm:px-6 bg-[#f6f8fa] border-t border-[#e5eaf3]">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-[#193a6a]">Частые вопросы</h2>
+          <p className="mt-4 text-gray-700 text-base">
+            Всё по-честному: отвечаем открыто на популярные вопросы. Остались сомнения?{" "}
+            <Link
+              to="/contacts"
+              className="text-[#193a6a] underline underline-offset-2 hover:text-blue-800 transition"
+              tabIndex={0}
+            >
+              Напишите нам — ответим быстро
+            </Link>
+            .
           </p>
         </div>
-
-        <div className="space-y-6">
+        <div className="space-y-4">
           {faqs.map((item, idx) => {
             const isOpen = openIndex === idx;
             return (
               <div
                 key={idx}
-                onClick={() => toggle(idx)}
-                className={`cursor-pointer border border-gray-300 rounded-xl bg-white p-6 transition-all duration-300 ${
-                  isOpen ? "shadow-md" : "hover:shadow-sm"
-                }`}
+                className={`
+                  group cursor-pointer rounded-xl border transition-all
+                  ${isOpen
+                    ? "border-[#193a6a] shadow-lg bg-white"
+                    : "border-[#e5eaf3] bg-white hover:border-[#193a6a]/80"}
+                  relative overflow-hidden
+                `}
+                onClick={() => setOpenIndex(isOpen ? null : idx)}
+                tabIndex={0}
+                role="button"
+                aria-expanded={isOpen}
               >
-                <div className="flex justify-between items-center gap-4">
-  <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex-1">
-    {item.question}
-  </h3>
-  <div className="min-w-[24px] min-h-[24px] flex items-center justify-center">
-    <ChevronDown
-      size={22}
-      className={`transition-transform duration-500 ${
-        isOpen ? "rotate-180 text-blue-600" : "text-gray-500"
-      }`}
-    />
-  </div>
-</div>
 
-
+                <div className={`
+                  absolute left-0 top-0 h-full w-1.5
+                  rounded-r-lg ${ACCENT} transition-all
+                  ${isOpen ? "opacity-100" : "opacity-0"}
+                `} />
+                <div className="flex items-center px-8 py-6 gap-4 relative z-10">
+                  <h3 className={`
+                    flex-1 text-left text-lg font-semibold transition
+                    ${isOpen ? "text-[#193a6a]" : "text-gray-900"}
+                  `}>
+                    {item.question}
+                  </h3>
+                  <ChevronDown
+                    size={24}
+                    className={`
+                      transition-transform duration-400
+                      ${isOpen ? "rotate-180 text-[#193a6a]" : "text-gray-400 group-hover:text-[#193a6a]/80"}
+                    `}
+                  />
+                </div>
                 <div
-                  ref={(el) => (contentRefs.current[idx] = el)}
+                  ref={el => refs.current[idx] = el}
                   style={{
-                    maxHeight: isOpen
-                      ? `${heights[idx] || 0}px`
-                      : "0px",
+                    maxHeight: isOpen ? `${heights[idx] || 120}px` : "0px",
                   }}
-                  className="overflow-hidden transition-[max-height] duration-500 ease-in-out"
+                  className={`
+                    overflow-hidden transition-[max-height] duration-500 ease-in-out
+                  `}
                 >
-                  <div className="mt-4 text-sm text-gray-600 leading-relaxed">
-                    {item.answer}
+                  <div className="px-8 pb-6 pt-0">
+                    <div className={`
+                      text-gray-700 text-base leading-relaxed
+                      transition-opacity duration-500
+                      ${isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}
+                    `}>
+                      {item.answer}
+                    </div>
                   </div>
                 </div>
               </div>

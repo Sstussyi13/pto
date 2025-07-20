@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import PriceTable from "../price/PriceTable";
-import axios from "axios"; // ← не забудь импортировать, если ранее был убран
+import axios from "axios"; 
 
 export default function PriceBlock() {
   const [prices, setPrices] = useState([]);

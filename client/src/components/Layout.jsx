@@ -4,10 +4,10 @@ import Footer from "./Footer";
 
 export default function Layout() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-[#f6f8fa]">
       <Header />
       <main className="flex-grow">
-        <Outlet /> {/* Важный элемент для маршрутов */}
+        <Outlet /> 
       </main>
       <Footer />
     </div>

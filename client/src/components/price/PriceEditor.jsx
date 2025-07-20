@@ -34,7 +34,7 @@ export default function PriceEditor({ prices = [], onSave }) {
     setSaving(true);
     setStatus("");
     try {
-      await onSave(items); // НЕ stringify
+      await onSave(items); 
       setStatus("✅ Сохранено");
     } catch (err) {
       console.error("Ошибка при сохранении:", err);

@@ -1,4 +1,3 @@
-// src/pages/PriceTableEditor.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 import PriceEditor from "../components/price/PriceEditor";
@@ -28,7 +27,7 @@ export default function PriceTableEditorPage() {
       await axios.put("/api/content/price_table", {
         value: updated,
       });
-      setData(JSON.parse(updated)); // Обновим локально
+      setData(JSON.parse(updated));
     } catch (err) {
       console.error("Ошибка сохранения:", err);
     }
