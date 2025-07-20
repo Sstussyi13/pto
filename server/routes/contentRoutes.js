@@ -1,11 +1,8 @@
-// routes/contentRoutes.js
 import express from 'express';
 import db from '../config/db.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
-
-// Получить весь контент
 router.get('/all', (req, res) => {
   db.all(`SELECT key, value FROM editable_content`, (err, rows) => {
     if (err) {
@@ -17,16 +14,14 @@ router.get('/all', (req, res) => {
       try {
         return { key: row.key, value: JSON.parse(row.value) };
       } catch (e) {
-        console.warn(`⚠️ Невалидный JSON в ключе '${row.key}': ${e.message}`);
-        return { key: row.key, value: row.value }; // Вернём как строку
+        console.warn(`Невалидный JSON в ключе '${row.key}': ${e.message}`);
+        return { key: row.key, value: row.value };
       }
     });
 
     res.json(result);
   });
 });
-
-// Получить конкретный блок
 router.get('/:key', (req, res) => {
   const { key } = req.params;
 
@@ -50,8 +45,22 @@ router.get('/:key', (req, res) => {
     }
   });
 });
-
-// Обновить контент (только авторизованным)
+router.get('/vacancies', (req, res) => {
+  db.get(`SELECT value FROM editable_content WHERE key = ?`, ['vacancies'], (err, row) => {
+    if (err) {
+      console.error('Ошибка при получении вакансий:', err.message);
+      return res.status(500).json({ error: 'Ошибка сервера' });
+    }
+    if (!row) return res.status(404).json({ error: 'Вакансии не найдены' });
+    try {
+      const vacancies = JSON.parse(row.value);
+      res.json(vacancies);
+    } catch (e) {
+      console.error('Ошибка парсинга вакансий:', e.message);
+      res.status(500).json({ error: 'Ошибка чтения вакансий' });
+    }
+  });
+});
 router.put('/:key', protect, express.json(), (req, res) => {
   const { key } = req.params;
   const { value } = req.body;

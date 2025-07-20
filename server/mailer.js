@@ -3,36 +3,18 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Проверка: вывод текущих настроек
-console.log('📦 SMTP CONFIG USED:', {
-  host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  user: process.env.MAIL_USER,
-});
-
-// Создаём SMTP-транспорт
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT),
+  port: parseInt(process.env.SMTP_PORT, 10),
   secure: process.env.SMTP_SECURE === 'true',
   auth: {
-  user: process.env.MAIL_USER,
-  pass: process.env.MAIL_PASS,
-},
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
+  },
 });
 
-// Проверка подключения
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('❌ SMTP Connection Error:', error);
-  } else {
-    console.log('✅ SMTP Connection Successful');
-  }
-});
-
-// Функция экранирования HTML
 function escapeHtml(text = '') {
-  return text.replace(/[&<>"']/g, match => ({
+  return (text || '').replace(/[&<>"']/g, match => ({
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
@@ -40,93 +22,202 @@ function escapeHtml(text = '') {
     "'": '&#039;',
   }[match]));
 }
-
-// Функция отправки письма
-export async function sendEmail({
-  full_name,
-  phone,
-  email,
-  service_type,
-  object_type,
-  id_section,
-  control_period,
-  object,
-  deadline,
-  review_deadline,
-  estimated_price,
-  message,
-}) {
-  console.log('📨 sendEmail вызвана с:', {
-    full_name,
-    phone,
-    email,
-    service_type,
-    object_type,
-    id_section,
-    control_period,
-    object,
-    deadline,
-    review_deadline,
-    estimated_price,
-    message,
-  });
-
-  const formattedPrice = estimated_price
-    ? parseInt(estimated_price).toLocaleString('ru-RU') + ' ₽'
-    : '—';
-
-  const mailOptions = {
-    from: `"PTO Site" <${process.env.MAIL_USER}>`,
-    to: process.env.MAIL_RECEIVER,
-    subject: 'Новая заявка с сайта — расчёт стоимости и параметры проекта',
-    replyTo: email,
-    html: `
-      <div style="font-family: 'Segoe UI', Roboto, sans-serif; background: #f4f5f7; padding: 32px;">
-        <div style="max-width: 700px; margin: auto; background: #ffffff; border-radius: 10px; border: 1px solid #e5e7eb; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
-          
-          <div style="background: #1f2937; color: #ffffff; padding: 24px 32px; border-bottom: 1px solid #374151;">
-            <h2 style="margin: 0; font-size: 20px; font-weight: 600;">Заявка с сайта</h2>
-            <p style="margin: 6px 0 0; font-size: 13px; color: #d1d5db;">Форма расчёта и обратной связи</p>
+function encodeFilename(filename) {
+  return `=?UTF-8?B?${Buffer.from(filename).toString('base64')}?=`;
+}
+function formatDateToDDMMYYYY(date) {
+  if (!date) return '';
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}.${month}.${year}`;
+}
+function getVacancyMailHTML({ full_name, birthDate, phone, email, about, resume }) {
+  return `
+  <div style="background:#f3f4f6;padding:0;margin:0;min-height:100vh;font-family:'Segoe UI',Roboto,sans-serif;">
+    <div style="max-width:600px;margin:32px auto;background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(44,62,80,0.08);overflow:hidden;border:1px solid #e5e7eb;">
+      <div style="background:#212d3b;color:#fff;padding:28px 36px 16px 36px;border-bottom:2px solid #e5e7eb;">
+        <h2 style="margin:0;font-size:22px;font-weight:700;">Отклик на вакансию</h2>
+        <div style="margin-top:5px;font-size:13px;opacity:0.9;font-weight:400;">Получена новая заявка с сайта</div>
+      </div>
+      <div style="padding:32px 36px 10px 36px;">
+        <table style="width:100%;font-size:15px;border-collapse:collapse;">
+          <tr><td style="color:#555;font-weight:600;padding:6px 0;width:155px;">ФИО</td><td>${escapeHtml(full_name)}</td></tr>
+          <tr><td style="color:#555;font-weight:600;padding:6px 0;">Дата рождения</td><td>${escapeHtml(formatDateToDDMMYYYY(birthDate))}</td></tr>
+          <tr><td style="color:#555;font-weight:600;padding:6px 0;">Телефон</td><td>${escapeHtml(phone)}</td></tr>
+          <tr><td style="color:#555;font-weight:600;padding:6px 0;">Email</td><td>${escapeHtml(email)}</td></tr>
+        </table>
+        <div style="margin:24px 0 0 0;border-top:1px solid #e5e7eb;padding-top:20px;">
+          <div style="font-size:14px;font-weight:600;color:#212d3b;margin-bottom:7px;">О себе</div>
+          <div style="background:#f7f7fa;border-radius:7px;padding:16px 14px;color:#333;line-height:1.7;font-size:15px;white-space:pre-line;">
+            ${escapeHtml(about)}
           </div>
-
-          <div style="padding: 32px;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-              <tbody>
-                <tr><td style="padding: 10px 0; font-weight: 600; width: 220px;">Имя</td><td>${escapeHtml(full_name)}</td></tr>
-                <tr><td style="padding: 10px 0; font-weight: 600;">Телефон</td><td>${escapeHtml(phone)}</td></tr>
-                <tr><td style="padding: 10px 0; font-weight: 600;">Email</td><td>${escapeHtml(email)}</td></tr>
-
-                <tr><td colspan="2" style="padding-top: 28px; font-weight: bold; font-size: 15px; color: #111827;">Параметры проекта</td></tr>
-                <tr><td style="padding: 10px 0; font-weight: 600;">Услуга</td><td>${escapeHtml(service_type || '—')}</td></tr>
-                <tr><td style="padding: 10px 0; font-weight: 600;">Тип объекта</td><td>${escapeHtml(object_type || '—')}</td></tr>
-                <tr><td style="padding: 10px 0; font-weight: 600;">Раздел ИД</td><td>${escapeHtml(id_section || '—')}</td></tr>
-                <tr><td style="padding: 10px 0; font-weight: 600;">Период контрольных срезов</td><td>${escapeHtml(control_period || '—')}</td></tr>
-                <tr><td style="padding: 10px 0; font-weight: 600;">Предварительная стоимость</td><td>${formattedPrice}</td></tr>
-
-                <tr><td colspan="2" style="padding-top: 28px; font-weight: bold; font-size: 15px; color: #111827;">Дополнительная информация</td></tr>
-                <tr><td style="padding: 10px 0; font-weight: 600;">Объект</td><td>${escapeHtml(object || '—')}</td></tr>
-                <tr><td style="padding: 10px 0; font-weight: 600;">Срок выполнения</td><td>${escapeHtml(deadline || '—')}</td></tr>
-                <tr><td style="padding: 10px 0; font-weight: 600;">Срок рассмотрения</td><td>${escapeHtml(review_deadline || '—')}</td></tr>
-                <tr><td style="padding: 10px 0; font-weight: 600;">Техническое задание</td><td>${escapeHtml(message || '—')}</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div style="background: #f9fafb; padding: 20px 32px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #e5e7eb;">
-            Это автоматическое уведомление. Пожалуйста, не отвечайте на это письмо.
+        </div>
+        ${resume
+          ? `<div style="margin:20px 0 10px 0;font-size:13px;color:#767676;">Резюме прикреплено файлом во вложении</div>`
+          : ''}
+      </div>
+      <div style="background:#f3f4f6;padding:14px 36px 11px 36px;text-align:center;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;">
+        Это письмо создано автоматически. Не отвечайте на него.
+      </div>
+    </div>
+  </div>
+  `;
+}
+function getCalculatorMailHTML({ full_name, phone, email, objectType, objectArea, estimateValue, sectionsText, formattedPrice, message }) {
+  return `
+  <div style="background:#f3f4f6;padding:0;margin:0;min-height:100vh;font-family:'Segoe UI',Roboto,sans-serif;">
+    <div style="max-width:600px;margin:32px auto;background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(44,62,80,0.08);overflow:hidden;border:1px solid #e5e7eb;">
+      <div style="background:#364152;color:#fff;padding:28px 36px 16px 36px;border-bottom:2px solid #e5e7eb;">
+        <h2 style="margin:0;font-size:22px;font-weight:700;">Заявка с калькулятора</h2>
+        <div style="margin-top:5px;font-size:13px;opacity:0.9;font-weight:400;">Расчет стоимости проектирования</div>
+      </div>
+      <div style="padding:32px 36px 10px 36px;">
+        <table style="width:100%;font-size:15px;border-collapse:collapse;">
+          <tr><td style="color:#555;font-weight:600;padding:6px 0;width:155px;">Имя</td><td>${escapeHtml(full_name)}</td></tr>
+          <tr><td style="color:#555;font-weight:600;padding:6px 0;">Телефон</td><td>${escapeHtml(phone)}</td></tr>
+          <tr><td style="color:#555;font-weight:600;padding:6px 0;">Email</td><td>${escapeHtml(email)}</td></tr>
+          <tr><td style="color:#555;font-weight:600;padding:6px 0;">Тип объекта</td><td>${escapeHtml(objectType || '—')}</td></tr>
+          <tr><td style="color:#555;font-weight:600;padding:6px 0;">Площадь</td><td>${escapeHtml(objectArea || '—')} м²</td></tr>
+          <tr><td style="color:#555;font-weight:600;padding:6px 0;">Сметная стоимость</td><td>${escapeHtml(estimateValue || '—')} ₽</td></tr>
+          <tr><td style="color:#555;font-weight:600;padding:6px 0;">Разделы проектирования</td><td>${sectionsText}</td></tr>
+          <tr><td style="color:#555;font-weight:600;padding:6px 0;">Итоговая стоимость</td><td>${formattedPrice}</td></tr>
+        </table>
+        <div style="margin:24px 0 0 0;border-top:1px solid #e5e7eb;padding-top:20px;">
+          <div style="font-size:14px;font-weight:600;color:#212d3b;margin-bottom:7px;">Комментарий пользователя</div>
+          <div style="background:#f7f7fa;border-radius:7px;padding:14px 12px;color:#333;line-height:1.6;font-size:15px;white-space:pre-line;">
+            ${escapeHtml(message || "—")}
           </div>
         </div>
       </div>
-    `,
-  };
+      <div style="background:#f3f4f6;padding:14px 36px 11px 36px;text-align:center;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;">
+        Это письмо создано автоматически. Не отвечайте на него.
+      </div>
+    </div>
+  </div>
+  `;
+}
+function getFeedbackMailHTML({ full_name, phone, email, message }) {
+  return `
+  <div style="background:#f3f4f6;padding:0;margin:0;min-height:100vh;font-family:'Segoe UI',Roboto,sans-serif;">
+    <div style="max-width:500px;margin:32px auto;background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(44,62,80,0.08);overflow:hidden;border:1px solid #e5e7eb;">
+      <div style="background:#374151;color:#fff;padding:20px 30px 12px 30px;border-bottom:2px solid #e5e7eb;">
+        <h2 style="margin:0;font-size:20px;font-weight:700;">Заявка с формы обратной связи</h2>
+      </div>
+      <div style="padding:22px 30px 7px 30px;">
+        <table style="width:100%;font-size:15px;border-collapse:collapse;">
+          <tr><td style="color:#555;font-weight:600;padding:6px 0;width:120px;">Имя</td><td>${escapeHtml(full_name)}</td></tr>
+          <tr><td style="color:#555;font-weight:600;padding:6px 0;">Телефон</td><td>${escapeHtml(phone)}</td></tr>
+          <tr><td style="color:#555;font-weight:600;padding:6px 0;">Email</td><td>${escapeHtml(email)}</td></tr>
+        </table>
+        <div style="margin:18px 0 0 0;border-top:1px solid #e5e7eb;padding-top:15px;">
+          <div style="font-size:14px;font-weight:600;color:#212d3b;margin-bottom:7px;">Сообщение</div>
+          <div style="background:#f7f7fa;border-radius:7px;padding:13px 10px;color:#333;line-height:1.6;font-size:15px;white-space:pre-line;">
+            ${escapeHtml(message || "—")}
+          </div>
+        </div>
+      </div>
+      <div style="background:#f3f4f6;padding:12px 30px 9px 30px;text-align:center;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;">
+        Это письмо создано автоматически. Не отвечайте на него.
+      </div>
+    </div>
+  </div>
+  `;
+}
 
-  try {
+export async function sendEmail(data) {
+  const firstName = data.firstName || '';
+  const lastName = data.lastName || '';
+  const middleName = data.middleName || '';
+  const full_name =
+    data.full_name ||
+    [lastName, firstName, middleName].filter(Boolean).join(' ').trim();
+  const birthDate = data.birthDate || '';
+  const phone = data.phone || '';
+  const email = data.email || '';
+  const about = typeof data.about === 'string' && data.about.trim()
+    ? data.about.trim()
+    : (typeof data.message === 'string' ? data.message.trim() : '');
+  const resume = data.resume || null;
+
+  const objectType = data.object_type || data.objectType || '';
+  const objectArea = data.object_area || data.objectArea || '';
+  const estimateValue = data.estimate_value || data.estimateValue || '';
+  const estimatedPrice = data.estimated_price || data.estimatedPrice || '';
+  const sections = data.sections || [];
+  const sectionsText = Array.isArray(sections) && sections.length
+    ? sections.map(escapeHtml).join(', ')
+    : "—";
+  const formattedPrice = estimatedPrice
+    ? Number(estimatedPrice).toLocaleString('ru-RU') + ' ₽'
+    : '—';
+  if (full_name && (about || resume) && birthDate && phone && email) {
+    const mailOptions = {
+      from: `"PTO Site" <${process.env.MAIL_FROM}>`,
+      to: process.env.MAIL_RECEIVER,
+      subject: "Отклик на вакансию",
+      replyTo: email,
+      html: getVacancyMailHTML({ full_name, birthDate, phone, email, about, resume }),
+      attachments: [],
+    };
+
+    if (resume) {
+      mailOptions.attachments.push({
+        filename: encodeFilename(resume.originalname),
+        content: resume.buffer,
+        contentType: resume.mimetype,
+        contentDisposition: 'attachment',
+      });
+    }
+
     const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Письмо отправлено:', info.response);
+    console.log(' Письмо отправлено (отклик):', info.response);
     return info;
-  } catch (err) {
-    console.error('❌ Ошибка при отправке письма:', err);
-
-    throw err;
   }
+  if (
+    objectType && objectArea && estimateValue && Array.isArray(sections) && sections.length &&
+    (full_name || phone || email)
+  ) {
+    const mailOptions = {
+      from: `"PTO Site" <${process.env.MAIL_FROM}>`,
+      to: process.env.MAIL_RECEIVER,
+      subject: "Заявка с калькулятора стоимости",
+      replyTo: email,
+      html: getCalculatorMailHTML({
+        full_name,
+        phone,
+        email,
+        objectType,
+        objectArea,
+        estimateValue,
+        sectionsText,
+        formattedPrice,
+        message: data.message || ''
+      }),
+    };
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Письмо отправлено (калькулятор):', info.response);
+    return info;
+  }
+  if (full_name && (data.message || about)) {
+    const mailOptions = {
+      from: `"PTO Site" <${process.env.MAIL_FROM}>`,
+      to: process.env.MAIL_RECEIVER,
+      subject: "Заявка с формы обратной связи",
+      replyTo: email,
+      html: getFeedbackMailHTML({
+        full_name,
+        phone,
+        email,
+        message: data.message || about,
+      }),
+    };
+    const info = await transporter.sendMail(mailOptions);
+    console.log(' Письмо отправлено (форма):', info.response);
+    return info;
+  }
+
+  console.log(' Неизвестный тип заявки или не хватает данных!');
+  return null;
 }

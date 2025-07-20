@@ -4,21 +4,26 @@ import { sendEmail } from '../mailer.js';
 export const submitRequest = async (req, res, next) => {
   try {
     const {
-      full_name,
-      phone,
-      email = '',
-      service_type = '',
-      object_type = '',
-      id_section = '',
-      control_period = '',
-      object = '',
-      deadline = '',
-      review_deadline = '',
-      estimated_price = '',
-      message = '',
+      full_name = "",
+      phone = "",
+      email = "",
+      service_type = "",
+      object_type = "",
+      objectType = "",
+      object_area = "",
+      objectArea = "",
+      estimate_value = "",
+      estimateValue = "",
+      id_section = "",
+      control_period = "",
+      object = "",
+      deadline = "",
+      review_deadline = "",
+      estimated_price = "",
+      estimatedPrice = "",
+      message = "",
+      sections = [],
     } = req.body;
-
-    // --- Валидация ---
     if (!full_name?.trim() || !phone?.trim()) {
       return res.status(400).json({ error: 'Имя и телефон обязательны' });
     }
@@ -27,24 +32,27 @@ export const submitRequest = async (req, res, next) => {
     if (!/^7\d{10}$/.test(cleanedPhone)) {
       return res.status(400).json({ error: 'Введите корректный номер телефона (начиная с 7)' });
     }
-
-    // --- Лог заявки ---
     console.log('📩 Новая заявка:', {
       full_name,
       phone,
       email,
       service_type,
       object_type,
+      objectType,
+      object_area,
+      objectArea,
+      estimate_value,
+      estimateValue,
       id_section,
       control_period,
       object,
       deadline,
       review_deadline,
       estimated_price,
+      estimatedPrice,
       message,
+      sections,
     });
-
-    // --- Сохранение в SQLite ---
     await new Promise((resolve, reject) => {
       db.run(
         `INSERT INTO applications (full_name, phone, service_type, message)
@@ -52,8 +60,8 @@ export const submitRequest = async (req, res, next) => {
         [
           full_name.trim(),
           phone.trim(),
-          service_type.trim(),
-          message.trim(),
+          service_type?.trim() || "",
+          message?.trim() || "",
         ],
         (err) => {
           if (err) {
@@ -64,28 +72,34 @@ export const submitRequest = async (req, res, next) => {
         }
       );
     });
-
-    // --- Отправка письма ---
     try {
       console.log('📬 Отправляем письмо...');
+
       await sendEmail({
         full_name,
         phone,
         email,
         service_type,
-        object_type,
+        object_type: object_type || objectType,
+        object_area: object_area || objectArea,
+        estimate_value: estimate_value || estimateValue,
         id_section,
         control_period,
         object,
         deadline,
         review_deadline,
-        estimated_price,
+        estimated_price: estimated_price || estimatedPrice,
         message,
+        sections: Array.isArray(sections)
+          ? sections
+          : (typeof sections === "string" && sections.startsWith("["))
+            ? JSON.parse(sections)
+            : [],
       });
+
       console.log('✅ Письмо отправлено');
     } catch (emailErr) {
       console.error('❌ Ошибка отправки письма:', emailErr.message);
-      // письмо не критично — не прерываем отправку заявки
     }
 
     return res.status(201).json({ message: 'Заявка успешно отправлена и сохранена' });

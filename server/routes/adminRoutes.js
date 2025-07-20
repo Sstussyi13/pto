@@ -1,10 +1,8 @@
 import express from 'express';
 import db from '../config/db.js';
-import { protect, adminOnly } from '../middleware/authMiddleware.js'; // ✅ корректные экспорты
+import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
-
-// Защищённый маршрут для получения заявок (только для админа)
 router.get('/requests', protect, adminOnly, (req, res) => {
   db.all('SELECT * FROM applications', (err, rows) => {
     if (err) {
@@ -13,8 +11,6 @@ router.get('/requests', protect, adminOnly, (req, res) => {
     res.json(rows);
   });
 });
-
-// Защищённый маршрут для загрузки контента
 router.get('/content', protect, adminOnly, (req, res) => {
   db.all('SELECT * FROM content', (err, rows) => {
     if (err) {

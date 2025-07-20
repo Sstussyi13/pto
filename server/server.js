@@ -20,11 +20,7 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isProd = process.env.NODE_ENV === 'production';
-
-// ----------------- БЕЗОПАСНОСТЬ ------------------ //
-
 app.use(helmet());
-
 app.use(cors({
   origin: process.env.CLIENT_URL,
   credentials: true,
@@ -35,7 +31,7 @@ app.use(cookieParser());
 app.use(express.json({ limit: '10kb' }));
 app.use(xssClean());
 app.use(mongoSanitize());
-app.use('/api/admin', authRoutes); // важно: префикс именно /api/admin
+app.use('/api/admin', authRoutes); 
 
 app.use('/admin', adminRoutes);
 
@@ -45,25 +41,13 @@ const limiter = rateLimit({
   message: 'Слишком много запросов, попробуйте позже',
 });
 app.use('/api', limiter);
-
-// ----------------- API ------------------ //
-
 app.use('/api', routes);
 app.get('/ping', (_, res) => res.send('pong'));
-
-// ----------------- FRONT ------------------ //
-
 app.use(express.static(path.join(__dirname, '../client/dist')));
 app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
-
-// ----------------- ERRORS ------------------ //
-
 app.use(errorHandler);
-
-// ----------------- СТАРТ ------------------ //
-
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Сервер запущен на порту ${PORT}`);
+  console.log(` Сервер запущен на порту ${PORT}`);
 });

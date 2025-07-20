@@ -1,4 +1,3 @@
-// server/scripts/createAdmin.js
 import bcrypt from 'bcrypt';
 import db from '../config/db.js';
 

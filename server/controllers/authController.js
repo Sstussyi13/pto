@@ -8,10 +8,8 @@ const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'Strict',
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
+  maxAge: 7 * 24 * 60 * 60 * 1000,
 };
-
-// 🚪 POST /api/admin/login
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -50,8 +48,6 @@ export const login = async (req, res) => {
     res.status(500).json({ message: 'Ошибка сервера' });
   }
 };
-
-// 👤 GET /api/admin/check
 export const getProfile = (req, res) => {
   res.json({
     id: req.user.id,

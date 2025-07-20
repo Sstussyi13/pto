@@ -1,0 +1,41 @@
+# Папки с зависимостями
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Переменные окружения
+.env
+
+# Папки с результатами сборки
+client/dist/
+dist/
+
+# Загруженные файлы пользователей
+uploads/
+
+# Локальные базы данных
+*.sqlite
+*.sqbpro
+
+# Логи
+*.log
+
+# Временные файлы
+*.tmp
+*.temp
+
+# Системные файлы macOS
+.DS_Store
+
+# Системные файлы Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE и редакторы (можно добавить, если используешь)
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln

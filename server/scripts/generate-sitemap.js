@@ -1,10 +1,8 @@
-// scripts/generate-sitemap.js
-
 import { SitemapStream, streamToPromise } from 'sitemap';
 import { createWriteStream } from 'fs';
 import { Readable } from 'stream';
 
-const BASE_URL = process.env.SITE_URL || 'https://example.com';
+const BASE_URL = process.env.SITE_URL || 'https://24ptoppr.ru';
 
 const links = [
   { url: '/', changefreq: 'weekly', priority: 1.0 },
@@ -19,5 +17,5 @@ streamToPromise(Readable.from(links).pipe(stream)).then((data) => {
   const output = createWriteStream('./public/sitemap.xml');
   output.write(data.toString());
   output.end();
-  console.log('✅ sitemap.xml успешно создан');
+  console.log(' sitemap.xml успешно создан');
 });
